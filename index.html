@@ -59,9 +59,23 @@
 
     /* FLOATING HEARTS CANVAS */
     #hearts-canvas {
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
-      z-index: 99;
+      z-index: 40;
+    }
+
+    body.locked-envelope {
+      overflow: hidden !important;
+      height: 100vh;
+      height: 100dvh;
+    }
+    body.locked-envelope .app-container {
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
     }
 
     /* FLOATING SOUND BUTTON (MOTDOI BOTTOM-LEFT STYLE) */
@@ -93,14 +107,21 @@
     .section-envelope {
       position: relative;
       background: #ffffff;
-      padding-top: 14px;
-      padding-bottom: 32px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 16px 16px 28px;
       overflow: hidden;
       text-align: center;
+      box-sizing: border-box;
+      z-index: 10;
     }
     .corner-ornament {
       position: absolute;
-      top: 0; width: 80px; height: auto;
+      top: 0; width: 75px; height: auto;
       pointer-events: none;
       select: none;
       z-index: 5;
@@ -109,8 +130,8 @@
     .corner-right { right: 0; transform: scaleX(-1); }
 
     .env-header-title {
-      padding-top: 36px;
-      margin-bottom: 24px;
+      padding-top: 8px;
+      margin-bottom: 10px;
     }
     .env-header-title p {
       font-size: 13px;
@@ -131,7 +152,8 @@
     /* PHYSICAL ENVELOPE CONTAINER */
     .envelope-box {
       position: relative;
-      max-width: 300px;
+      width: 290px;
+      max-width: 88vw;
       margin: 0 auto;
       cursor: pointer;
       user-select: none;
@@ -1241,7 +1263,7 @@
     }
   </style>
 </head>
-<body>
+<body class="locked-envelope">
 
 <div class="desktop-bg"></div>
 <canvas id="hearts-canvas"></canvas>
@@ -1815,10 +1837,12 @@ soundBtn.addEventListener('click', toggleMusic);
 function triggerOpenEnvelope() {
   if (envelopeEl.classList.contains('opened')) return;
   envelopeEl.classList.add('opened');
+  document.body.classList.remove('locked-envelope');
   tapText.innerHTML = 'HÔN LỄ XUÂN ANH &amp; THÙY LINH 💕';
   startMusic();
-  spawnHeartsShower();
+  burstHearts();
   showToast('Chào mừng bạn đến với hôn lễ của Xuân Anh & Thuỳ Linh! 🌸');
+  startAutoScroll(1600);
 }
 envelopeEl.addEventListener('click', triggerOpenEnvelope);
 tapText.addEventListener('click', triggerOpenEnvelope);
@@ -2064,10 +2088,46 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 3200);
 }
 
+/* ====================================================
+   EXACT MOTDOI FLOATING HEARTS ENGINE
+==================================================== */
 const canvas = document.getElementById('hearts-canvas');
 const ctx = canvas.getContext('2d');
-let heartsList = [];
 
+const MOTDOI_HEARTS = {
+  chars: ["♥", "vector-heart", "♡"],
+  colors: ["#e8758a", "#d4546c", "#f0a0b0", "#c94060"],
+  count: 24,
+  sizeRange: [12, 24],
+  speedRange: [0.6, 1.4],
+  driftRange: [-0.4, 0.4],
+  rotate: false,
+  opacity: 0.75
+};
+
+function rand(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function createHeartParticle(cfg, width, height, isInitial = false) {
+  const charIdx = Math.floor(Math.random() * cfg.chars.length);
+  const colorIdx = Math.floor(Math.random() * cfg.colors.length);
+  return {
+    x: rand(0, width),
+    y: isInitial ? rand(-50, height) : rand(-120, -10),
+    vx: rand(cfg.driftRange[0], cfg.driftRange[1]),
+    vy: rand(cfg.speedRange[0], cfg.speedRange[1]),
+    size: rand(cfg.sizeRange[0], cfg.sizeRange[1]),
+    opacity: rand(0.5 * cfg.opacity, cfg.opacity),
+    rotation: rand(0, 2 * Math.PI),
+    rotSpeed: cfg.rotate ? rand(-0.02, 0.02) : 0,
+    char: cfg.chars[charIdx],
+    color: cfg.colors[colorIdx],
+    fadeIn: isInitial ? 1 : 0
+  };
+}
+
+let particles = [];
 function fitCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -2075,42 +2135,137 @@ function fitCanvas() {
 fitCanvas();
 window.addEventListener('resize', fitCanvas);
 
-function spawnHeartsShower() {
-  for (let i = 0; i < 35; i++) {
-    heartsList.push({
-      x: Math.random() * window.innerWidth,
-      y: window.innerHeight + 20,
-      vx: (Math.random() - 0.5) * 4,
-      vy: -(Math.random() * 4 + 3),
-      size: Math.random() * 14 + 10,
-      alpha: 1,
-      char: ['❤', '💕', '🌸', '💖'][Math.floor(Math.random() * 4)]
+particles = Array.from({ length: MOTDOI_HEARTS.count }, () =>
+  createHeartParticle(MOTDOI_HEARTS, canvas.width, canvas.height, true)
+);
+
+function burstHearts() {
+  for (let i = 0; i < 20; i++) {
+    particles.push({
+      x: rand(window.innerWidth * 0.2, window.innerWidth * 0.8),
+      y: rand(window.innerHeight * 0.3, window.innerHeight * 0.6),
+      vx: rand(-2, 2),
+      vy: rand(-3, -1),
+      size: rand(14, 28),
+      opacity: rand(0.7, 0.95),
+      rotation: rand(0, 2 * Math.PI),
+      rotSpeed: 0,
+      char: MOTDOI_HEARTS.chars[Math.floor(Math.random() * MOTDOI_HEARTS.chars.length)],
+      color: MOTDOI_HEARTS.colors[Math.floor(Math.random() * MOTDOI_HEARTS.colors.length)],
+      fadeIn: 1
     });
   }
 }
 
 function loopHearts() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let i = heartsList.length - 1; i >= 0; i--) {
-    const h = heartsList[i];
-    h.x += h.vx;
-    h.y += h.vy;
-    h.alpha -= 0.009;
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    if (p.fadeIn < 1) p.fadeIn = Math.min(1, p.fadeIn + 0.02);
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rotation += p.rotSpeed;
+    p.vx += rand(-0.01, 0.01);
+    p.vx = Math.max(2 * MOTDOI_HEARTS.driftRange[0], Math.min(2 * MOTDOI_HEARTS.driftRange[1], p.vx));
 
-    if (h.alpha <= 0 || h.y < -30) {
-      heartsList.splice(i, 1);
+    if (p.y > canvas.height + 40) {
+      if (particles.length > MOTDOI_HEARTS.count) {
+        particles.splice(i, 1);
+        continue;
+      }
+      Object.assign(p, createHeartParticle(MOTDOI_HEARTS, canvas.width, canvas.height, false));
       continue;
     }
+    if (p.x < -40) p.x = canvas.width + 20;
+    if (p.x > canvas.width + 40) p.x = -20;
 
     ctx.save();
-    ctx.globalAlpha = h.alpha;
-    ctx.font = `${h.size}px serif`;
-    ctx.fillText(h.char, h.x, h.y);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation);
+    ctx.globalAlpha = p.opacity * p.fadeIn;
+    ctx.fillStyle = p.color;
+
+    if (p.char === "vector-heart") {
+      const scale = 1.1 * p.size;
+      ctx.scale(scale, scale);
+      ctx.beginPath();
+      ctx.moveTo(0, -0.21);
+      ctx.bezierCurveTo(0, -0.57, -0.5, -0.57, -0.5, -0.16);
+      ctx.bezierCurveTo(-0.5, 0.15, -0.2, 0.28, 0, 0.47);
+      ctx.bezierCurveTo(0.2, 0.28, 0.5, 0.15, 0.5, -0.16);
+      ctx.bezierCurveTo(0.5, -0.57, 0, -0.57, 0, -0.21);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.font = `${p.size}px serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(p.char, 0, 0);
+    }
     ctx.restore();
   }
   requestAnimationFrame(loopHearts);
 }
 loopHearts();
+
+/* ====================================================
+   EXACT MOTDOI AUTO-SCROLL ENGINE
+==================================================== */
+let autoScrollActive = false;
+let autoScrollRaf = null;
+let autoScrollTimeout = null;
+let autoScrollResumeTimeout = null;
+const SCROLL_SPEED_PX = 36; // px per second
+let lastScrollTime = 0;
+let scrollAccumulator = 0;
+let isUserInteracting = false;
+
+function startAutoScroll(delayMs = 1600) {
+  clearTimeout(autoScrollTimeout);
+  autoScrollTimeout = setTimeout(() => {
+    autoScrollActive = true;
+    isUserInteracting = false;
+    lastScrollTime = performance.now();
+    scrollAccumulator = window.scrollY;
+    cancelAnimationFrame(autoScrollRaf);
+    autoScrollRaf = requestAnimationFrame(autoScrollStep);
+  }, delayMs);
+}
+
+function autoScrollStep(now) {
+  if (!autoScrollActive || isUserInteracting) return;
+  const dt = Math.min((now - lastScrollTime) / 1000, 0.1);
+  lastScrollTime = now;
+
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  if (scrollAccumulator >= maxScroll - 4) {
+    autoScrollActive = false;
+    return;
+  }
+
+  scrollAccumulator += SCROLL_SPEED_PX * dt;
+  window.scrollTo({ top: scrollAccumulator, behavior: 'instant' });
+  autoScrollRaf = requestAnimationFrame(autoScrollStep);
+}
+
+function pauseAutoScroll() {
+  if (!autoScrollActive) return;
+  isUserInteracting = true;
+  cancelAnimationFrame(autoScrollRaf);
+  clearTimeout(autoScrollResumeTimeout);
+
+  autoScrollResumeTimeout = setTimeout(() => {
+    isUserInteracting = false;
+    lastScrollTime = performance.now();
+    scrollAccumulator = window.scrollY;
+    autoScrollRaf = requestAnimationFrame(autoScrollStep);
+  }, 3500);
+}
+
+window.addEventListener('touchstart', pauseAutoScroll, { passive: true });
+window.addEventListener('touchmove', pauseAutoScroll, { passive: true });
+window.addEventListener('wheel', pauseAutoScroll, { passive: true });
+window.addEventListener('mousedown', pauseAutoScroll, { passive: true });
 </script>
 </body>
 </html>
