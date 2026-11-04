@@ -1371,6 +1371,26 @@
       opacity: 1;
     }
   </style>
+
+
+
+
+
+
+
+<script>
+// Auto-routing if accessed with ?nha=gai or ?nha=trai
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const nha = p.get('nha');
+  if (nha === 'gai') {
+    window.location.replace('nha-gai.html' + window.location.search);
+  } else if (nha === 'trai') {
+    window.location.replace('nha-trai.html' + window.location.search);
+  }
+})();
+</script>
+
 </head>
 <body class="locked-envelope">
 
@@ -1391,6 +1411,21 @@
      MOTDOI 430px MOBILE CONTAINER
 ==================================================== -->
 <div class="app-container">
+
+  <!-- QUICK SWITCHER BANNER -->
+  <div class="version-banner" style="background:#FAF7F2; border-bottom:1px solid rgba(105,1,1,0.15); padding:8px 12px; text-align:center; font-size:12px; color:#555; display:flex; align-items:center; justify-content:center; gap:12px; z-index:90; position:relative;">
+    <span style="font-weight:600;">Chọn thiệp mời:</span>
+    <a href="nha-trai.html" style="color:#fff; background:var(--primary); font-weight:700; text-decoration:none; padding:4px 12px; border-radius:14px; font-size:11.5px; box-shadow:0 2px 8px rgba(105,1,1,0.2);">
+      🏠 Nhà Trai (09/12)
+    </a>
+    <a href="nha-gai.html" style="color:var(--primary); background:#fff; border:1px solid var(--primary); font-weight:700; text-decoration:none; padding:3px 11px; border-radius:14px; font-size:11.5px;">
+      🌸 Nhà Gái (08/12)
+    </a>
+  </div>
+
+
+  
+
 
   <!-- ====================================================
        SECTION 0: INTERACTIVE ENVELOPE (MOTDOI STYLE)
