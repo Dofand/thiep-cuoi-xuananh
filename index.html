@@ -1202,6 +1202,8 @@
       border-radius: 18px;
       padding: 24px 20px;
       max-width: 360px;
+      max-height: 90vh;
+      overflow-y: auto;
       width: 100%;
       position: relative;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -1239,6 +1241,113 @@
       font-weight: 700;
       cursor: pointer;
     }
+
+    /* GIFT MODAL TABS & QR STYLES */
+    .gift-tabs-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .gift-tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(105, 1, 1, 0.25);
+      background: #faf7f2;
+      color: #555;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .gift-tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(105, 1, 1, 0.25);
+    }
+    .gift-card-panel {
+      background: #FAF7F2;
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid rgba(105, 1, 1, 0.12);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+    }
+    .qr-image-wrapper {
+      width: 210px;
+      max-width: 100%;
+      margin: 0 auto 12px;
+      background: #fff;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .qr-img-display {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+    .gift-bank-info {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .bank-tag-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .bank-acc-num {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #1a1a1a;
+      font-family: 'Montserrat', sans-serif;
+      user-select: all;
+    }
+    .bank-acc-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-top: 2px;
+      letter-spacing: 0.05em;
+    }
+    .gift-action-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .btn-copy-stk, .btn-download-qr {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .btn-copy-stk {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+    }
+    .btn-copy-stk:active { transform: scale(0.96); }
+    .btn-download-qr {
+      background: #ffffff;
+      color: var(--primary);
+      border: 1px solid rgba(105, 1, 1, 0.3);
+    }
+    .btn-download-qr:active { transform: scale(0.96); }
 
     /* TOAST MESSAGE */
     #live-toast {
@@ -1758,20 +1867,54 @@
   <div class="modal-window" style="text-align:center;">
     <button class="modal-close-x" id="close-gift-modal-btn">✕</button>
     <div class="modal-title">Mừng Cưới</div>
-    <p style="font-size:12.5px; color:#666; font-style:italic; margin-bottom:16px;">
+    <p style="font-size:12.5px; color:#666; font-style:italic; margin-bottom:14px;">
       Gửi gắm tình cảm và lời chúc phúc đến cô dâu &amp; chú rể 💕
     </p>
 
-    <div style="background:#FAF7F2; border-radius:12px; padding:14px; border:1px solid rgba(105,1,1,0.15); margin-bottom:12px; text-align:left;">
-      <p style="font-size:11px; font-weight:700; color:var(--primary); letter-spacing:0.08em; text-transform:uppercase;">CHÚ RỂ · XUÂN ANH</p>
-      <p style="font-size:13px; font-weight:600; color:#000; margin-top:2px;">Mừng cưới chú rể tại ngày vui</p>
-      <p style="font-size:11.5px; color:#666; margin-top:4px;">📍 Thôn Bàn Thạch 2, Xã Sao Vàng, Tỉnh Thanh Hoá</p>
+    <!-- SWITCH TABS CHÚ RỂ / CÔ DÂU -->
+    <div class="gift-tabs-row">
+      <button class="gift-tab-btn active" id="gift-tab-cr" onclick="switchGiftTab('cr')">🤵 Chú Rể (Xuân Anh)</button>
+      <button class="gift-tab-btn" id="gift-tab-cd" onclick="switchGiftTab('cd')">👰 Cô Dâu (Thuỳ Linh)</button>
     </div>
 
-    <div style="background:#FAF7F2; border-radius:12px; padding:14px; border:1px solid rgba(105,1,1,0.15); text-align:left;">
-      <p style="font-size:11px; font-weight:700; color:var(--primary); letter-spacing:0.08em; text-transform:uppercase;">CÔ DÂU · THÙY LINH</p>
-      <p style="font-size:13px; font-weight:600; color:#000; margin-top:2px;">Mừng cưới cô dâu tại ngày vui</p>
-      <p style="font-size:11.5px; color:#666; margin-top:4px;">📍 Thôn Bàn Thạch 2, Xã Sao Vàng, Tỉnh Thanh Hoá</p>
+    <!-- TAB CHÚ RỂ -->
+    <div class="gift-card-panel active" id="gift-panel-cr">
+      <div class="qr-image-wrapper">
+        <img src="qr-chu-re.png" alt="Mã QR Chú Rể - Lê Xuân Anh" class="qr-img-display"/>
+      </div>
+      <div class="gift-bank-info">
+        <p class="bank-tag-label">NGÂN HÀNG QUÂN ĐỘI (MBBANK)</p>
+        <p class="bank-acc-num">1570101564007</p>
+        <p class="bank-acc-name">CHỦ TK: LE XUAN ANH</p>
+      </div>
+      <div class="gift-action-btns">
+        <button class="btn-copy-stk" onclick="copyStk('1570101564007', 'Chú rể Xuân Anh')">
+          📋 Sao chép STK
+        </button>
+        <a href="qr-chu-re.png" download="QR-XuanAnh.png" class="btn-download-qr">
+          📥 Lưu mã QR
+        </a>
+      </div>
+    </div>
+
+    <!-- TAB CÔ DÂU -->
+    <div class="gift-card-panel" id="gift-panel-cd" style="display:none;">
+      <div class="qr-image-wrapper">
+        <img src="qr-co-dau.png" alt="Mã QR Cô Dâu - Nguyễn Thị Thuỳ Linh" class="qr-img-display"/>
+      </div>
+      <div class="gift-bank-info">
+        <p class="bank-tag-label">NGÂN HÀNG QUÂN ĐỘI (MBBANK)</p>
+        <p class="bank-acc-num">038300015028</p>
+        <p class="bank-acc-name">CHỦ TK: NGUYEN THI THUY LINH</p>
+      </div>
+      <div class="gift-action-btns">
+        <button class="btn-copy-stk" onclick="copyStk('038300015028', 'Cô dâu Thuỳ Linh')">
+          📋 Sao chép STK
+        </button>
+        <a href="qr-co-dau.png" download="QR-ThuyLinh.png" class="btn-download-qr">
+          📥 Lưu mã QR
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -2032,6 +2175,33 @@ const giftModal = document.getElementById('gift-popup-modal');
 document.getElementById('gift-trigger-btn').addEventListener('click', () => giftModal.classList.add('active'));
 document.getElementById('close-gift-modal-btn').addEventListener('click', () => giftModal.classList.remove('active'));
 giftModal.addEventListener('click', (e) => { if(e.target === giftModal) giftModal.classList.remove('active'); });
+
+function switchGiftTab(tab) {
+  const btnCr = document.getElementById('gift-tab-cr');
+  const btnCd = document.getElementById('gift-tab-cd');
+  const panelCr = document.getElementById('gift-panel-cr');
+  const panelCd = document.getElementById('gift-panel-cd');
+
+  if (tab === 'cr') {
+    btnCr.classList.add('active');
+    btnCd.classList.remove('active');
+    panelCr.style.display = 'block';
+    panelCd.style.display = 'none';
+  } else {
+    btnCd.classList.add('active');
+    btnCr.classList.remove('active');
+    panelCd.style.display = 'block';
+    panelCr.style.display = 'none';
+  }
+}
+
+function copyStk(stk, owner) {
+  navigator.clipboard.writeText(stk).then(() => {
+    showToast(`Đã sao chép STK của ${owner}: ${stk} 📋`);
+  }).catch(() => {
+    showToast(`STK: ${stk}`);
+  });
+}
 
 /* ====================================================
    PERSONALIZED URL CREATOR
